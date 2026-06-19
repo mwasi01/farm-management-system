@@ -1121,6 +1121,45 @@ class DailyFarmLog(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     recorder = db.relationship('User', foreign_keys=[recorded_by])
 
+
+# ============================================================================
+# CREATE TABLES ON STARTUP
+# ============================================================================
+
+with app.app_context():
+    db.create_all()
+    
+    # Create default admin user
+    admin = User.query.filter_by(username='admin').first()
+    if not admin:
+        admin = User(
+            employee_id='EMP20240001',
+            username='admin',
+            email='admin@farmmanager.com',
+            first_name='Farm',
+            last_name='Administrator',
+            role='admin',
+            department='Management',
+            employment_type='Permanent',
+            employment_date=date.today(),
+            is_active=True,
+            email_verified=True,
+            basic_salary=50000
+        )
+        admin.set_password('admin123')
+        db.session.add(admin)
+        db.session.commit()
+        print("=" * 60)
+        print("FARM MANAGEMENT SYSTEM INITIALIZED")
+        print("=" * 60)
+        print("Default admin login:")
+        print("  Username: admin")
+        print("  Password: admin123")
+        print("=" * 60)
+        print("IMPORTANT: Change the default password immediately!")
+        print("=" * 60)
+
+
 class DailyProductionSummary(db.Model):
     """Daily production summary for each animal"""
     __tablename__ = 'daily_production_summaries'
