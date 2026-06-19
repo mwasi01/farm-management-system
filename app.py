@@ -1131,7 +1131,7 @@ class DailyProductionSummary(db.Model):
     value_ksh = db.Column(db.Numeric(10, 2))
     image_url = db.Column(db.String(500))
     notes = db.Column(db.Text)
-    recorded_by = db.Column(db.Integer, db.ForeignKey(\'users.id'))
+    recorded_by = db.Column(db.Integer, db.ForeignKey("users.id"))
         created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     animal = db.relationship('Livestock', backref='daily_production')
