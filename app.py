@@ -1132,7 +1132,7 @@ class DailyProductionSummary(db.Model):
     image_url = db.Column(db.String(500))
     notes = db.Column(db.Text)
     recorded_by = db.Column(db.Integer, db.ForeignKey("users.id"))
-        created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     animal = db.relationship('Livestock', backref='daily_production')
     recorder = db.relationship('User', foreign_keys=[recorded_by])
