@@ -406,8 +406,9 @@ class BreedingRecord(db.Model):
     complications = db.Column(db.Text)
     colostrum_fed = db.Column(db.Boolean)
     weaning_date = db.Column(db.Date)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    recorder = db.relationship('User', backref='breeding_records_recorded')
+    recorded_by = db.Column(db.Integer, db.ForeignKey(\'users.id\'))
+        created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    recorder = db.relationship(\'User\', foreign_keys=[recorded_by], backref=\'breeding_records_recorded\')
 
 class LivestockProduction(db.Model):
     __tablename__ = 'livestock_production'
