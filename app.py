@@ -384,7 +384,7 @@ class LivestockHealth(db.Model):
     performed_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     performed_date = db.Column(db.DateTime, default=datetime.utcnow)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    performer = db.relationship('User', backref='health_records_performed')
+    performer = db.relationship('User', foreign_keys=[performed_by], backref='health_records_performed')
 
 class BreedingRecord(db.Model):
     __tablename__ = 'breeding_records'
@@ -494,7 +494,7 @@ class LivestockSale(db.Model):
     sold_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     animal = db.relationship('Livestock', backref='sale_record')
-    seller = db.relationship('User')
+    seller = db.relationship('User', foreign_keys=[sold_by])
 
 class CropCategory(db.Model):
     __tablename__ = 'crop_categories'
@@ -562,7 +562,7 @@ class CropPlanting(db.Model):
     recorded_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    planter = db.relationship('User')
+    planter = db.relationship('User', foreign_keys=[planted_by])
     activities = db.relationship('CropActivity', backref='planting', lazy='dynamic')
     harvests = db.relationship('Harvest', backref='planting', lazy='dynamic')
     pest_controls = db.relationship('PestControl', backref='planting', lazy='dynamic')
@@ -585,7 +585,7 @@ class CropActivity(db.Model):
     notes = db.Column(db.Text)
     weather_conditions = db.Column(db.String(100))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    performer = db.relationship('User')
+    performer = db.relationship('User', foreign_keys=[performed_by])
 
 class SoilTest(db.Model):
     __tablename__ = 'soil_tests'
@@ -627,7 +627,7 @@ class PestControl(db.Model):
     notes = db.Column(db.Text)
     recorded_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    performer = db.relationship('User')
+    performer = db.relationship('User', foreign_keys=[performed_by])
 
 class FertilizerApplication(db.Model):
     __tablename__ = 'fertilizer_applications'
@@ -641,7 +641,7 @@ class FertilizerApplication(db.Model):
     cost = db.Column(db.Numeric(10, 2))
     applied_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    applier = db.relationship('User')
+    applier = db.relationship('User', foreign_keys=[applied_by])
 
 class IrrigationRecord(db.Model):
     __tablename__ = 'irrigation_records'
@@ -655,7 +655,7 @@ class IrrigationRecord(db.Model):
     cost = db.Column(db.Numeric(10, 2))
     performed_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    performer = db.relationship('User')
+    performer = db.relationship('User', foreign_keys=[performed_by])
 
 class Harvest(db.Model):
     __tablename__ = 'harvests'
@@ -674,7 +674,7 @@ class Harvest(db.Model):
     notes = db.Column(db.Text)
     recorded_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    harvester = db.relationship('User')
+    harvester = db.relationship('User', foreign_keys=[harvested_by])
     post_harvest = db.relationship('PostHarvest', backref='harvest', lazy='dynamic')
 
 class PostHarvest(db.Model):
@@ -693,7 +693,7 @@ class PostHarvest(db.Model):
     cost = db.Column(db.Numeric(10, 2))
     handled_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    handler = db.relationship('User')
+    handler = db.relationship('User', foreign_keys=[handled_by])
 
 class ProduceSale(db.Model):
     __tablename__ = 'produce_sales'
@@ -712,7 +712,7 @@ class ProduceSale(db.Model):
     sold_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     harvest = db.relationship('Harvest')
-    seller = db.relationship('User')
+    seller = db.relationship('User', foreign_keys=[sold_by])
 
 class FinancialAccount(db.Model):
     __tablename__ = 'financial_accounts'
@@ -1025,6 +1025,8 @@ class Task(db.Model):
     planting = db.relationship('CropPlanting')
     field = db.relationship('FarmField')
     assignee = db.relationship('User', foreign_keys=[assigned_to], back_populates='tasks_assigned')
+    reporter = db.relationship('User', foreign_keys=[reported_by])
+    completer = db.relationship('User', foreign_keys=[completed_by])
 
 class TaskComment(db.Model):
     __tablename__ = 'task_comments'
@@ -1036,7 +1038,7 @@ class TaskComment(db.Model):
     notes = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     task = db.relationship('Task', backref='comments')
-    user = db.relationship('User')
+    user = db.relationship('User', foreign_keys=[user_id])
 
 class InventoryItem(db.Model):
     __tablename__ = 'inventory_items'
@@ -1070,7 +1072,7 @@ class StockMovement(db.Model):
     reason = db.Column(db.Text)
     cost = db.Column(db.Numeric(10, 2))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    performer = db.relationship('User')
+    performer = db.relationship('User', foreign_keys=[performed_by])
 
 class Supplier(db.Model):
     __tablename__ = 'suppliers'
@@ -1102,7 +1104,7 @@ class GeneratedReport(db.Model):
     file_path = db.Column(db.String(500))
     generated_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    generator = db.relationship('User')
+    generator = db.relationship('User', foreign_keys=[generated_by])
 
 class DailyFarmLog(db.Model):
     __tablename__ = 'daily_farm_logs'
@@ -1126,18 +1128,17 @@ class DailyProductionSummary(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     animal_id = db.Column(db.Integer, db.ForeignKey('livestock.id'), nullable=False, index=True)
     production_date = db.Column(db.Date, nullable=False, index=True)
-    product_type = db.Column(db.String(50))  # Milk, Eggs, Wool, etc.
+    product_type = db.Column(db.String(50))
     quantity = db.Column(db.Numeric(10, 3))
     unit = db.Column(db.String(20))
     value_ksh = db.Column(db.Numeric(10, 2))
     image_url = db.Column(db.String(500))
     notes = db.Column(db.Text)
-    recorded_by = db.Column(db.Integer, db.ForeignKey("users.id"))
+    recorded_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     animal = db.relationship('Livestock', backref='daily_production')
     recorder = db.relationship('User', foreign_keys=[recorded_by])
-
 
 # ============================================================================
 # CONTEXT PROCESSORS
@@ -2460,8 +2461,6 @@ def uploaded_file(filename):
 # MAIN APPLICATION ENTRY POINT
 # ============================================================================
 
-
-
 @app.route('/livestock/<int:livestock_id>/production/add', methods=['GET', 'POST'])
 @login_required
 def add_production_record(livestock_id):
@@ -2516,9 +2515,6 @@ def production_chart(livestock_id):
     productions = LivestockProduction.query.filter_by(animal_id=livestock_id).order_by(LivestockProduction.production_date.desc()).all()
     return render_template('livestock/production_chart.html', animal=animal, productions=productions)
 
-
-
-
 @app.route('/finance/payroll/<int:payroll_id>/mark-paid', methods=['POST'])
 @login_required
 def mark_payroll_paid(payroll_id):
@@ -2564,9 +2560,6 @@ def employee_payroll_history(user_id):
                          total_earned=total_earned,
                          total_paid=total_paid)
 
-
-
-
 @app.route('/livestock/<int:livestock_id>/health/add', methods=['GET', 'POST'])
 @login_required
 def add_health_record(livestock_id):
@@ -2587,7 +2580,6 @@ def add_health_record(livestock_id):
             performed_by=current_user.id,
             notes=request.form.get('notes')
         )
-        # Handle image upload if provided
         photo = request.files.get('photo')
         if photo and allowed_image(photo.filename):
             health.photo_url = upload_to_cloudinary(photo, 'health_photos')
@@ -2620,7 +2612,6 @@ def edit_livestock(livestock_id):
         animal.shed_number = request.form.get('shed_number')
         animal.notes = request.form.get('notes')
         animal.estimated_value = request.form.get('estimated_value')
-        # Handle image update
         image_file = request.files.get('image')
         if image_file and allowed_image(image_file.filename):
             animal.image_url = upload_to_cloudinary(image_file, 'livestock_photos')
@@ -2634,17 +2625,14 @@ def edit_livestock(livestock_id):
 @login_required
 @admin_required
 def generate_payroll():
-    period = request.form.get('period')  # format YYYY-MM
+    period = request.form.get('period')
     if not period:
         flash('Please select a period.', 'danger')
         return redirect(url_for('payroll_list'))
-    # Split period into year and month
     year, month = map(int, period.split('-'))
-    # Get all active employees with basic salary > 0
     employees = User.query.filter(User.is_active == True, User.basic_salary > 0).all()
     count = 0
     for emp in employees:
-        # Check if payroll already exists for this period
         existing = Payroll.query.filter_by(user_id=emp.id, payroll_period=period).first()
         if existing:
             continue
@@ -2673,12 +2661,10 @@ def generate_payroll():
     flash(f'Generated {count} payroll records for {period}.', 'success')
     return redirect(url_for('payroll_list'))
 
-
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
         
-        # Create default admin user
         admin = User.query.filter_by(username='admin').first()
         if not admin:
             admin = User(
