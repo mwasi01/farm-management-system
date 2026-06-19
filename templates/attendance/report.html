@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance Report{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-file-alt text-primary me-2"></i>Attendance Report - {{ month }}/{{ year }}</h1>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Department</th>
+                        <th>Present</th>
+                        <th>Absent</th>
+                        <th>Late</th>
+                        <th>Total Hours</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in report %}
+                    <tr>
+                        <td>{{ record.first_name }} {{ record.last_name }}</td>
+                        <td>{{ record.department or 'N/A' }}</td>
+                        <td>{{ record.present_days or 0 }}</td>
+                        <td>{{ record.absent_days or 0 }}</td>
+                        <td>{{ record.late_days or 0 }}</td>
+                        <td>{{ "%.1f"|format(record.total_hours or 0) }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No attendance records found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

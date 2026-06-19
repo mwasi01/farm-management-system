@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}{{ employee.full_name }} - Payroll History{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <h1><i class="fas fa-user-circle text-primary me-2"></i>{{ employee.full_name }} - Payroll History</h1>
+    <a href="{{ url_for('payroll_list') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to Payroll
+    </a>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card stat-primary">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ format_currency(total_earned) }}</div>
+                    <div class="stat-label">Total Earned</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-coins"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card stat-success">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ format_currency(total_paid) }}</div>
+                    <div class="stat-label">Total Paid</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card stat-warning">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ format_currency(total_earned - total_paid) }}</div>
+                    <div class="stat-label">Balance</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-clock"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Period</th>
+                        <th>Gross Pay</th>
+                        <th>Deductions</th>
+                        <th>Net Pay</th>
+                        <th>Status</th>
+                        <th>Payment Date</th>
+                        <th>Method</th>
+                        <th>Payslip</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payroll in payrolls %}
+                    <tr>
+                        <td>{{ payroll.payroll_period }}</td>
+                        <td>{{ format_currency(payroll.gross_pay) }}</td>
+                        <td>{{ format_currency(payroll.total_deductions) }}</td>
+                        <td><strong>{{ format_currency(payroll.net_pay) }}</strong></td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if payroll.payment_status == 'Paid' else 'warning' if payroll.payment_status == 'Pending' else 'info' }}">
+                                {{ payroll.payment_status }}
+                            </span>
+                        </td>
+                        <td>{{ format_date(payroll.payment_date) or '-' }}</td>
+                        <td>{{ payroll.payment_method or '-' }}</td>
+                        <td>
+                            <a href="{{ url_for('generate_payslip', payroll_id=payroll.id) }}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-file-pdf"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted">No payroll records found for this employee.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

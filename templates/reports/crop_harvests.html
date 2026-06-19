@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Harvest Report{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-tractor text-primary me-2"></i>Harvest Report</h1>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="stat-card stat-success">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ "%.1f"|format(total_harvested) }} kg</div>
+                    <div class="stat-label">Total Harvested</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-boxes"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Crop</th>
+                        <th>Harvest Date</th>
+                        <th>Quantity (kg)</th>
+                        <th>Grade</th>
+                        <th>Storage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for harvest in harvests %}
+                    <tr>
+                        <td>{{ harvest.planting.crop.name }}</td>
+                        <td>{{ format_date(harvest.harvest_date) }}</td>
+                        <td>{{ harvest.quantity_kg }}</td>
+                        <td>{{ harvest.quality_grade or 'N/A' }}</td>
+                        <td>{{ harvest.storage_location or 'N/A' }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">No harvests found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

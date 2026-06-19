@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Farm Management System{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2d6a4f;
+            --secondary-color: #40916c;
+            --success-color: #52b788;
+            --danger-color: #d00000;
+            --warning-color: #ffba08;
+            --info-color: #3a86ff;
+            --dark-color: #1b4332;
+            --light-color: #d8f3dc;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; }
+        body { padding-top: 70px; padding-left: 0; }
+        .navbar { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 12px 20px; height: 65px; z-index: 1050; }
+        .navbar-brand { color: white !important; font-weight: bold; font-size: 1.3rem; }
+        .navbar-brand i { margin-right: 10px; }
+        .nav-link { color: rgba(255,255,255,0.8) !important; padding: 8px 15px !important; }
+        .nav-link:hover { color: white !important; }
+        .sidebar { position: fixed; top: 65px; left: 0; bottom: 0; width: 250px; background: white; border-right: 1px solid #e9ecef; overflow-y: auto; padding: 20px 0; z-index: 1000; height: calc(100vh - 65px); }
+        .sidebar .nav-link { color: #333; padding: 10px 25px; border-radius: 8px; margin: 2px 10px; display: block; text-decoration: none; }
+        .sidebar .nav-link:hover { background: var(--light-color); color: var(--primary-color); }
+        .sidebar .nav-link.active { background: var(--primary-color); color: white; }
+        .sidebar .nav-link i { width: 25px; margin-right: 10px; }
+        .sidebar .nav-section { font-size: 0.7rem; text-transform: uppercase; color: #999; padding: 10px 25px; letter-spacing: 1px; font-weight: 600; }
+        .main-content { margin-left: 250px; padding: 25px 30px 30px 30px; min-height: calc(100vh - 65px); }
+        .card { border: none; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .card-header { background: white; border-bottom: 2px solid var(--light-color); border-radius: 12px 12px 0 0 !important; font-weight: 600; padding: 15px 20px; }
+        .card-body { padding: 20px; }
+        .stat-card { padding: 20px; border-radius: 12px; color: white; }
+        .stat-card .stat-icon { font-size: 2.5rem; opacity: 0.7; }
+        .stat-card .stat-number { font-size: 2rem; font-weight: bold; }
+        .stat-card .stat-label { font-size: 0.9rem; opacity: 0.9; }
+        .stat-primary { background: linear-gradient(135deg, #2d6a4f, #40916c); }
+        .stat-success { background: linear-gradient(135deg, #52b788, #2d6a4f); }
+        .stat-warning { background: linear-gradient(135deg, #ffba08, #f48c06); }
+        .stat-danger { background: linear-gradient(135deg, #d00000, #e85d04); }
+        .stat-info { background: linear-gradient(135deg, #3a86ff, #4361ee); }
+        .stat-purple { background: linear-gradient(135deg, #7209b7, #3f37c9); }
+        .btn-primary { background: var(--primary-color); border-color: var(--primary-color); }
+        .btn-primary:hover { background: var(--dark-color); border-color: var(--dark-color); }
+        .page-header { padding-bottom: 20px; margin-bottom: 25px; border-bottom: 2px solid #e9ecef; }
+        .page-header h1 { font-size: 1.8rem; font-weight: 600; color: var(--dark-color); }
+        .badge { padding: 6px 12px; border-radius: 20px; font-weight: 500; }
+        .table th { border-top: none; font-weight: 600; color: #555; background-color: #f8f9fa; }
+        .table td { vertical-align: middle; }
+        .alert { border-radius: 10px; border: none; padding: 12px 20px; margin-bottom: 20px; }
+        .footer { background: white; padding: 15px 0; border-top: 1px solid #e9ecef; margin-top: 30px; border-radius: 8px; }
+        @media (max-width: 768px) {
+            body { padding-top: 60px; }
+            .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; width: 280px; top: 60px; height: calc(100vh - 60px); }
+            .sidebar.show { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 15px; }
+            .navbar { height: 60px; padding: 8px 15px; }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+                <i class="fas fa-tractor"></i> Farm Manager
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}"><i class="fas fa-home"></i> Dashboard</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle"></i> {{ current_user.first_name }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{{ url_for('user_profile', user_id=current_user.id) }}"><i class="fas fa-user me-2"></i> Profile</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-2 text-danger"></i> Logout</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    {% if current_user.is_authenticated %}
+    <div class="sidebar" id="sidebar">
+        <div class="nav-section">Navigation</div>
+        <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}"><i class="fas fa-home"></i> Dashboard</a>
+        
+        {% if current_user.role in ['admin', 'manager'] %}
+        <div class="nav-section">Management</div>
+        <a class="nav-link" href="{{ url_for('user_list') }}"><i class="fas fa-users"></i> Employees</a>
+        <a class="nav-link" href="{{ url_for('livestock_list') }}"><i class="fas fa-paw"></i> Livestock</a>
+        <a class="nav-link" href="{{ url_for('crop_list') }}"><i class="fas fa-seedling"></i> Crops</a>
+        <a class="nav-link" href="{{ url_for('financial_report') }}"><i class="fas fa-coins"></i> Finance</a>
+        <a class="nav-link" href="{{ url_for('inventory_list') }}"><i class="fas fa-boxes"></i> Inventory</a>
+        {% endif %}
+        
+        <div class="nav-section">Operations</div>
+        <a class="nav-link" href="{{ url_for('task_list') }}"><i class="fas fa-tasks"></i> Tasks</a>
+        <a class="nav-link" href="{{ url_for('attendance_list') }}"><i class="fas fa-clock"></i> Attendance</a>
+        <a class="nav-link" href="{{ url_for('leave_list') }}"><i class="fas fa-calendar-alt"></i> Leave</a>
+        <a class="nav-link" href="{{ url_for('farm_log') }}"><i class="fas fa-book"></i> Farm Log</a>
+        
+        {% if current_user.role in ['admin', 'manager'] %}
+        <div class="nav-section">Settings</div>
+        <a class="nav-link" href="{{ url_for('system_settings') }}"><i class="fas fa-cog"></i> Settings</a>
+        <a class="nav-link" href="{{ url_for('reports') }}"><i class="fas fa-file-alt"></i> Reports</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% elif category == 'warning' %}warning{% else %}info-circle{% endif %} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+
+        <div class="footer text-center text-muted">
+            <small>
+                <i class="fas fa-copyright"></i> {{ current_year }} Farm Management System | 
+                <i class="fas fa-graduation-cap"></i> Based on Kenyan 8-4-4 Syllabus
+            </small>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                document.querySelectorAll('.alert').forEach(function(alert) {
+                    try { new bootstrap.Alert(alert).close(); } catch(e) {}
+                });
+            }, 5000);
+            
+            const toggler = document.querySelector('.navbar-toggler');
+            if (toggler) {
+                toggler.addEventListener('click', function() {
+                    document.getElementById('sidebar').classList.toggle('show');
+                });
+            }
+        });
+        
+        function confirmDelete(message) {
+            return confirm(message || 'Are you sure you want to delete this item?');
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

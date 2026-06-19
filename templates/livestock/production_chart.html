@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Production Chart - {{ animal.tag_number }}{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <h1><i class="fas fa-chart-line text-primary me-2"></i>{{ animal.tag_number }} - Production Chart</h1>
+    <div>
+        <a href="{{ url_for('add_production_record', livestock_id=animal.id) }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Add Record
+        </a>
+        <a href="{{ url_for('livestock_detail', livestock_id=animal.id) }}" class="btn btn-secondary">Back</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Production Chart -->
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-chart-bar me-2"></i>Production Overview - Last 30 Days
+            </div>
+            <div class="card-body">
+                <canvas id="productionChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Production Summary -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-info-circle me-2"></i>Summary
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for product_type, data in product_types.items() %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ product_type }}</strong>
+                            <br>
+                            <small class="text-muted">Total: {{ data|length }} records</small>
+                        </div>
+                        <span class="badge bg-primary rounded-pill">
+                            {% set total = data|sum(attribute='quantity') %}
+                            {{ "%.1f"|format(total) }}
+                        </span>
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center">No production data available</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Production Records -->
+<div class="card mt-4">
+    <div class="card-header">
+        <i class="fas fa-history me-2"></i>Recent Production Records
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Unit</th>
+                        <th>Value</th>
+                        <th>Image</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prod in productions[-10:]|reverse %}
+                    <tr>
+                        <td>{{ format_date(prod.production_date) }}</td>
+                        <td>{{ prod.product_type }}</td>
+                        <td>{{ prod.quantity }}</td>
+                        <td>{{ prod.unit }}</td>
+                        <td>{{ format_currency(prod.value_ksh) }}</td>
+                        <td>
+                            {% if prod.photo_url %}
+                            <img src="{{ prod.photo_url }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                            {% else %}
+                            <span class="text-muted">No image</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No production records found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var productData = {{ product_types|tojson }};
+    
+    if (document.getElementById('productionChart') && productData) {
+        var colors = ['#2d6a4f', '#40916c', '#52b788', '#d00000', '#ffba08', '#3a86ff', '#7209b7'];
+        var datasets = [];
+        var allDates = [];
+        
+        // Collect all dates
+        Object.values(productData).forEach(function(data) {
+            data.forEach(function(item) {
+                if (!allDates.includes(item.date)) {
+                    allDates.push(item.date);
+                }
+            });
+        });
+        allDates.sort();
+        
+        // Create dataset for each product type
+        var colorIndex = 0;
+        Object.keys(productData).forEach(function(productType) {
+            var data = productData[productType];
+            var dateMap = {};
+            data.forEach(function(item) {
+                dateMap[item.date] = item.quantity;
+            });
+            
+            var values = allDates.map(function(date) {
+                return dateMap[date] || 0;
+            });
+            
+            datasets.push({
+                label: productType,
+                data: values,
+                borderColor: colors[colorIndex % colors.length],
+                backgroundColor: colors[colorIndex % colors.length] + '33',
+                fill: true,
+                tension: 0.4
+            });
+            colorIndex++;
+        });
+        
+        new Chart(document.getElementById('productionChart'), {
+            type: 'line',
+            data: {
+                labels: allDates,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + ' units';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

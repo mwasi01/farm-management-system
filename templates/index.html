@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome - Farm Management System{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center align-items-center min-vh-75">
+        <div class="col-lg-8 text-center">
+            <div class="mb-4">
+                <i class="fas fa-tractor" style="font-size: 4rem; color: var(--primary-color);"></i>
+            </div>
+            <h1 class="display-3 fw-bold text-dark mb-4">Farm Management System</h1>
+            <p class="lead text-muted mb-4">
+                Comprehensive farm management based on the Kenyan 8-4-4 Secondary School Agriculture Syllabus
+            </p>
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg px-5">
+                    <i class="fas fa-sign-in-alt me-2"></i> Login
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-5 pt-5">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 text-center p-4">
+                <i class="fas fa-paw" style="font-size: 2.5rem; color: var(--primary-color);"></i>
+                <h5 class="card-title mt-3">Livestock Management</h5>
+                <p class="card-text text-muted">Track animals, health records, breeding, and production</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 text-center p-4">
+                <i class="fas fa-seedling" style="font-size: 2.5rem; color: var(--success-color);"></i>
+                <h5 class="card-title mt-3">Crop Management</h5>
+                <p class="card-text text-muted">Manage planting, harvesting, and crop production</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 text-center p-4">
+                <i class="fas fa-coins" style="font-size: 2.5rem; color: var(--warning-color);"></i>
+                <h5 class="card-title mt-3">Financial Management</h5>
+                <p class="card-text text-muted">Track income, expenses, payroll, and generate reports</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

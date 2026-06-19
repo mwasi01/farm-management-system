@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Livestock Health Report{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-heartbeat text-primary me-2"></i>Livestock Health Report</h1>
+</div>
+
+{% if health_summary %}
+<div class="row g-4 mb-4">
+    {% for status in health_summary %}
+    <div class="col-md-3">
+        <div class="stat-card {% if status[0] == 'Healthy' %}stat-success{% elif status[0] == 'Sick' %}stat-danger{% else %}stat-warning{% endif %}">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ status[1] }}</div>
+                    <div class="stat-label">{{ status[0] }}</div>
+                </div>
+                <div class="stat-icon">
+                    <i class="fas fa-{% if status[0] == 'Healthy' %}check-circle{% elif status[0] == 'Sick' %}exclamation-circle{% else %}clock{% endif %}"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Animal</th>
+                        <th>Type</th>
+                        <th>Diagnosis</th>
+                        <th>Treatment</th>
+                        <th>Veterinary Officer</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if recent_treatments %}
+                    {% for record in recent_treatments %}
+                    <tr>
+                        <td>{{ record.animal.tag_number }}</td>
+                        <td>{{ record.record_type }}</td>
+                        <td>{{ record.diagnosis|truncate(40) }}</td>
+                        <td>{{ record.treatment|truncate(40) }}</td>
+                        <td>{{ record.veterinary_officer or 'N/A' }}</td>
+                        <td>{{ format_date(record.performed_date) }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No health records found</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

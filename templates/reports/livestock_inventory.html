@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Livestock Inventory Report{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-paw text-primary me-2"></i>Livestock Inventory Report</h1>
+</div>
+
+<div class="row g-4 mb-4">
+    {% for cat in category_summary %}
+    <div class="col-md-3">
+        <div class="stat-card stat-primary">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ cat[1] }}</div>
+                    <div class="stat-label">{{ cat[0] }}</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-paw"></i></div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Tag</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Breed</th>
+                        <th>Sex</th>
+                        <th>Health</th>
+                        <th>Status</th>
+                        <th>Value (Ksh)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for animal in livestock %}
+                    <tr>
+                        <td><strong>{{ animal.tag_number }}</strong></td>
+                        <td>{{ animal.name or 'N/A' }}</td>
+                        <td>{{ animal.category.name }}</td>
+                        <td>{{ animal.breed or 'N/A' }}</td>
+                        <td>{{ animal.sex or 'N/A' }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if animal.health_status == 'Healthy' else 'danger' if animal.health_status == 'Sick' else 'warning' }}">
+                                {{ animal.health_status }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if animal.production_status == 'Active' else 'secondary' }}">
+                                {{ animal.production_status }}
+                            </span>
+                        </td>
+                        <td>{{ format_currency(animal.estimated_value) }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted">No livestock found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

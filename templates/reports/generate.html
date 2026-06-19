@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Generate Farm Report{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-file-pdf text-primary me-2"></i>Generate Farm Report</h1>
+</div>
+
+<div class="card">
+    <div class="card-body text-center py-5">
+        <i class="fas fa-file-pdf" style="font-size: 4rem; color: var(--danger-color);"></i>
+        <h4 class="mt-3">PDF Report Generation</h4>
+        <p class="text-muted">Generate a comprehensive PDF report of all farm activities</p>
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-4">
+                <form method="GET" action="{{ url_for('generate_farm_report') }}">
+                    <div class="mb-3">
+                        <label class="form-label">Select Period</label>
+                        <input type="month" name="date" class="form-control" value="{{ now().strftime('%Y-%m') }}">
+                    </div>
+                    <button type="submit" class="btn btn-danger btn-lg w-100">
+                        <i class="fas fa-file-pdf me-2"></i>Generate PDF
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

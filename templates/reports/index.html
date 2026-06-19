@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Reports{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-file-alt text-primary me-2"></i>Reports Dashboard</h1>
+    <p class="text-muted">Generate and view various farm management reports</p>
+</div>
+
+<div class="row g-4">
+    <!-- Livestock Reports -->
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="fas fa-paw text-success me-2"></i>Livestock Reports
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <a href="{{ url_for('livestock_report', type='inventory') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-list me-2"></i>Livestock Inventory
+                    </a>
+                    <a href="{{ url_for('livestock_report', type='health') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-heartbeat me-2"></i>Health Records
+                    </a>
+                    <a href="{{ url_for('livestock_report', type='production') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-chart-line me-2"></i>Production Report
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Crop Reports -->
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="fas fa-seedling text-success me-2"></i>Crop Reports
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <a href="{{ url_for('crop_report', type='planting') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-seedling me-2"></i>Planting Records
+                    </a>
+                    <a href="{{ url_for('crop_report', type='harvest') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-tractor me-2"></i>Harvest Records
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Financial Reports -->
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="fas fa-coins text-warning me-2"></i>Financial Reports
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <a href="{{ url_for('financial_report', type='monthly') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-chart-bar me-2"></i>Monthly Summary
+                    </a>
+                    <a href="{{ url_for('financial_report', type='expense_breakdown') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-pie-chart me-2"></i>Expense Breakdown
+                    </a>
+                    <a href="{{ url_for('generate_farm_report') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-file-pdf me-2"></i>Generate PDF Report
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Attendance Report -->
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="fas fa-clock text-info me-2"></i>Attendance Reports
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <a href="{{ url_for('attendance_report') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-user-check me-2"></i>Attendance Summary
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Payroll Report -->
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="fas fa-money-bill-wave text-success me-2"></i>Payroll Reports
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <a href="{{ url_for('payroll_list') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-file-invoice me-2"></i>Payroll Summary
+                    </a>
+                    <a href="{{ url_for('generate_payslip', payroll_id=1) }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-file-pdf me-2"></i>Generate Payslip
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Generate Report -->
+    <div class="col-md-4">
+        <div class="card h-100 bg-primary text-white">
+            <div class="card-header bg-transparent border-light">
+                <i class="fas fa-file-export me-2"></i>Quick Actions
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <a href="{{ url_for('generate_farm_report') }}" class="list-group-item list-group-item-action text-primary">
+                        <i class="fas fa-file-pdf me-2"></i>Generate Full Farm Report
+                    </a>
+                    <a href="{{ url_for('attendance_report') }}" class="list-group-item list-group-item-action text-primary">
+                        <i class="fas fa-file-excel me-2"></i>Export Attendance
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Add Health Record - {{ animal.tag_number }}{% endblock %}
+
+{% block extra_js %}
+<script>
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('photoPreview').src = e.target.result;
+            document.getElementById('photoPreview').style.display = 'block';
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-heartbeat text-danger me-2"></i>Add Health Record</h1>
+    <p class="text-muted">Animal: {{ animal.tag_number }} - {{ animal.name or 'Unnamed' }}</p>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Record Type</label>
+                    <select name="record_type" class="form-select" required>
+                        <option value="">Select Type</option>
+                        <option value="Treatment">Treatment</option>
+                        <option value="Vaccination">Vaccination</option>
+                        <option value="Check-up">Check-up</option>
+                        <option value="Surgery">Surgery</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Veterinary Officer</label>
+                    <input type="text" name="veterinary_officer" class="form-control" placeholder="Name of attending vet">
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Diagnosis</label>
+                    <textarea name="diagnosis" class="form-control" rows="2" required></textarea>
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Treatment Administered</label>
+                    <textarea name="treatment" class="form-control" rows="2"></textarea>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Medication Used</label>
+                    <input type="text" name="medication_used" class="form-control" placeholder="e.g., Oxytetracycline">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Dosage</label>
+                    <input type="text" name="dosage" class="form-control" placeholder="e.g., 10ml">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Withdrawal Period (days)</label>
+                    <input type="number" name="withdrawal_period_days" class="form-control" min="0">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Cost (Ksh)</label>
+                    <input type="number" step="0.01" name="cost" class="form-control">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Next Action Date</label>
+                    <input type="date" name="next_action_date" class="form-control">
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Next Action Description</label>
+                    <input type="text" name="next_action" class="form-control" placeholder="e.g., Follow-up examination">
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Photo / Document</label>
+                    <input type="file" name="photo" class="form-control" accept="image/*" onchange="previewImage(this)">
+                    <div class="mt-2">
+                        <img id="photoPreview" style="max-width: 200px; max-height: 200px; display: none; border-radius: 8px;">
+                    </div>
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Notes</label>
+                    <textarea name="notes" class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-save me-2"></i>Save Health Record
+                </button>
+                <a href="{{ url_for('livestock_detail', livestock_id=animal.id) }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

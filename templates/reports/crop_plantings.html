@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Crop Planting Report{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-seedling text-primary me-2"></i>Crop Planting Report</h1>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Crop</th>
+                        <th>Field</th>
+                        <th>Planting Date</th>
+                        <th>Area (acres)</th>
+                        <th>Status</th>
+                        <th>Stage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for planting in plantings %}
+                    <tr>
+                        <td>{{ planting.crop.name }}</td>
+                        <td>{{ planting.field.field_name }}</td>
+                        <td>{{ format_date(planting.planting_date) }}</td>
+                        <td>{{ planting.area_planted }}</td>
+                        <td><span class="badge bg-success">{{ planting.status }}</span></td>
+                        <td>{{ planting.current_stage or 'N/A' }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No plantings found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

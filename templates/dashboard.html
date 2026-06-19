@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <h1><i class="fas fa-home text-primary me-2"></i>Dashboard</h1>
+    <span class="badge bg-primary">{{ now().strftime('%A, %B %d, %Y') }}</span>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card stat-primary">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ total_livestock }}</div>
+                    <div class="stat-label">Total Livestock</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-paw"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card stat-success">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ total_crops }}</div>
+                    <div class="stat-label">Active Crops</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-seedling"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card stat-info">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ total_employees }}</div>
+                    <div class="stat-label">Employees</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card stat-warning">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ pending_tasks }}</div>
+                    <div class="stat-label">Pending Tasks</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-tasks"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card stat-purple">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ format_currency(monthly_income) }}</div>
+                    <div class="stat-label">Monthly Income</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-arrow-up"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card stat-danger">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ format_currency(monthly_expenses) }}</div>
+                    <div class="stat-label">Monthly Expenses</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-arrow-down"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card stat-success">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ "%.1f"|format(milk_production) }} L</div>
+                    <div class="stat-label">Milk Production (Month)</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-glass-milk"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-chart-bar me-2"></i> Livestock by Category</div>
+            <div class="card-body">
+                <canvas id="livestockChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-tasks me-2"></i> Task Status</div>
+            <div class="card-body">
+                <canvas id="taskChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-2">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-clock me-2"></i> Upcoming Tasks</span>
+                <a href="{{ url_for('task_list') }}" class="btn btn-sm btn-primary">View All</a>
+            </div>
+            <div class="card-body">
+                {% if upcoming_tasks %}
+                    {% for task in upcoming_tasks %}
+                        <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                            <div>
+                                <span class="badge bg-{{ 'danger' if task.priority == 'High' else 'warning' if task.priority == 'Medium' else 'info' }}">
+                                    {{ task.priority }}
+                                </span>
+                                {{ task.task_title }}
+                            </div>
+                            <small class="text-muted">{{ format_date(task.due_date) }}</small>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center mb-0">No upcoming tasks</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-history me-2"></i> Recent Activity</div>
+            <div class="card-body">
+                {% if recent_activities %}
+                    {% for activity in recent_activities %}
+                        <div class="border-bottom py-2">
+                            <div class="d-flex justify-content-between">
+                                <span>{{ activity.description }}</span>
+                                <small class="text-muted">{{ activity.timestamp.strftime('%H:%M') }}</small>
+                            </div>
+                            <small class="text-muted">{{ activity.module }}</small>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center mb-0">No recent activity</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Livestock Chart
+    var livestockData = [
+        {% for cat in livestock_categories %}
+            { label: '{{ cat[0] }}', value: {{ cat[1] }} },
+        {% endfor %}
+    ];
+    
+    if (document.getElementById('livestockChart') && livestockData.length > 0) {
+        new Chart(document.getElementById('livestockChart'), {
+            type: 'bar',
+            data: {
+                labels: livestockData.map(function(item) { return item.label; }),
+                datasets: [{
+                    label: 'Number of Animals',
+                    data: livestockData.map(function(item) { return item.value; }),
+                    backgroundColor: ['#2d6a4f', '#40916c', '#52b788', '#74c69d', '#95d5b2', '#b7e4c7', '#d8f3dc'],
+                    borderColor: '#1b4332',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+            }
+        });
+    }
+    
+    // Task Chart
+    var taskData = [
+        {% for stat in task_stats %}
+            { label: '{{ stat[0] }}', value: {{ stat[1] }} },
+        {% endfor %}
+    ];
+    
+    if (document.getElementById('taskChart') && taskData.length > 0) {
+        var taskColors = { 'Pending': '#ffba08', 'In Progress': '#3a86ff', 'Completed': '#52b788', 'Cancelled': '#d00000' };
+        new Chart(document.getElementById('taskChart'), {
+            type: 'doughnut',
+            data: {
+                labels: taskData.map(function(item) { return item.label; }),
+                datasets: [{
+                    data: taskData.map(function(item) { return item.value; }),
+                    backgroundColor: taskData.map(function(item) { return taskColors[item.label] || '#6c757d'; }),
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

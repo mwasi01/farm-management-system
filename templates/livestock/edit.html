@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Livestock - {{ animal.tag_number }}{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const categorySelect = document.getElementById('category_id');
+    const breedSelect = document.getElementById('breed');
+    
+    const breedsData = {
+        {% for category in categories %}
+        "{{ category.id }}": [
+            {% for breed in category.breeds %}
+            "{{ breed.name }}"{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ]{% if not loop.last %},{% endif %}
+        {% endfor %}
+    };
+    
+    function updateBreeds() {
+        const categoryId = categorySelect.value;
+        const breeds = breedsData[categoryId] || [];
+        const currentBreed = "{{ animal.breed }}";
+        
+        breedSelect.innerHTML = '<option value="">Select Breed</option>';
+        breeds.forEach(function(breed) {
+            const option = document.createElement('option');
+            option.value = breed;
+            option.textContent = breed;
+            if (breed === currentBreed) {
+                option.selected = true;
+            }
+            breedSelect.appendChild(option);
+        });
+    }
+    
+    categorySelect.addEventListener('change', updateBreeds);
+    if (categorySelect.value) {
+        updateBreeds();
+    }
+});
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-edit text-primary me-2"></i>Edit Livestock</h1>
+    <p class="text-muted">Tag: {{ animal.tag_number }} - {{ animal.name or 'Unnamed' }}</p>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Tag Number</label>
+                    <input type="text" name="tag_number" class="form-control" value="{{ animal.tag_number }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Name</label>
+                    <input type="text" name="name" class="form-control" value="{{ animal.name or '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Category</label>
+                    <select name="category_id" id="category_id" class="form-select" required>
+                        <option value="">Select Category</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}" {% if category.id == animal.category_id %}selected{% endif %}>{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Breed</label>
+                    <select name="breed" id="breed" class="form-select">
+                        <option value="">Select Breed</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Sex</label>
+                    <select name="sex" class="form-select">
+                        <option value="Male" {% if animal.sex == 'Male' %}selected{% endif %}>Male</option>
+                        <option value="Female" {% if animal.sex == 'Female' %}selected{% endif %}>Female</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Date of Birth</label>
+                    <input type="date" name="date_of_birth" class="form-control" value="{{ animal.date_of_birth.strftime('%Y-%m-%d') if animal.date_of_birth else '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Acquisition Date</label>
+                    <input type="date" name="acquisition_date" class="form-control" value="{{ animal.acquisition_date.strftime('%Y-%m-%d') if animal.acquisition_date else '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Acquisition Type</label>
+                    <select name="acquisition_type" class="form-select">
+                        <option value="">Select</option>
+                        <option value="Purchase" {% if animal.acquisition_type == 'Purchase' %}selected{% endif %}>Purchase</option>
+                        <option value="Birth" {% if animal.acquisition_type == 'Birth' %}selected{% endif %}>Birth</option>
+                        <option value="Gift" {% if animal.acquisition_type == 'Gift' %}selected{% endif %}>Gift</option>
+                        <option value="Other" {% if animal.acquisition_type == 'Other' %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Acquisition Cost (Ksh)</label>
+                    <input type="number" step="0.01" name="acquisition_cost" class="form-control" value="{{ animal.acquisition_cost or '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Current Weight (kg)</label>
+                    <input type="number" step="0.01" name="current_weight" class="form-control" value="{{ animal.current_weight or '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Color</label>
+                    <input type="text" name="color" class="form-control" value="{{ animal.color or '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Markings</label>
+                    <input type="text" name="markings" class="form-control" value="{{ animal.markings or '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Dam Tag</label>
+                    <input type="text" name="dam_tag" class="form-control" value="{{ animal.dam_tag or '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Sire Tag</label>
+                    <input type="text" name="sire_tag" class="form-control" value="{{ animal.sire_tag or '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Location</label>
+                    <input type="text" name="location" class="form-control" value="{{ animal.location or '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Shed Number</label>
+                    <input type="text" name="shed_number" class="form-control" value="{{ animal.shed_number or '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Estimated Value (Ksh)</label>
+                    <input type="number" step="0.01" name="estimated_value" class="form-control" value="{{ animal.estimated_value or '' }}">
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Image</label>
+                    <input type="file" name="image" class="form-control" accept="image/*">
+                    {% if animal.image_url %}
+                    <div class="mt-2">
+                        <img src="{{ animal.image_url }}" alt="Current Image" style="max-width: 150px; max-height: 150px; border-radius: 8px;">
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Notes</label>
+                    <textarea name="notes" class="form-control" rows="3">{{ animal.notes or '' }}</textarea>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Update Animal
+                </button>
+                <a href="{{ url_for('livestock_detail', livestock_id=animal.id) }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

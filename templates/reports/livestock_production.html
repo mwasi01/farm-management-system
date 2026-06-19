@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Livestock Production Report{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-chart-line text-primary me-2"></i>Livestock Production Report</h1>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        {% if milk_data %}
+        <canvas id="milkChart" height="300"></canvas>
+        {% else %}
+        <p class="text-muted text-center">No milk production data available</p>
+        {% endif %}
+    </div>
+</div>
+
+{% if milk_data %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var milkData = {{ milk_data|tojson }};
+    if (milkData && milkData.length > 0) {
+        new Chart(document.getElementById('milkChart'), {
+            type: 'line',
+            data: {
+                labels: milkData.map(function(item) { return item.month; }),
+                datasets: [{
+                    label: 'Milk Production (Litres)',
+                    data: milkData.map(function(item) { return item.production; }),
+                    borderColor: '#2d6a4f',
+                    backgroundColor: 'rgba(45, 106, 79, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) { return value + ' L'; }
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endif %}
+{% endblock %}

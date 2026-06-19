@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Edit User{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-user-edit text-primary me-2"></i>Edit User: {{ user.full_name }}</h1>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Username</label>
+                    <input type="text" name="username" class="form-control" value="{{ user.username }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" class="form-control" value="{{ user.email }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">First Name</label>
+                    <input type="text" name="first_name" class="form-control" value="{{ user.first_name }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Last Name</label>
+                    <input type="text" name="last_name" class="form-control" value="{{ user.last_name }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Phone Number</label>
+                    <input type="text" name="phone_number" class="form-control" value="{{ user.phone_number or '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Role</label>
+                    <select name="role" class="form-select">
+                        <option value="worker" {% if user.role == 'worker' %}selected{% endif %}>Worker</option>
+                        <option value="manager" {% if user.role == 'manager' %}selected{% endif %}>Manager</option>
+                        <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Department</label>
+                    <input type="text" name="department" class="form-control" value="{{ user.department or '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Employment Type</label>
+                    <select name="employment_type" class="form-select">
+                        <option value="Permanent" {% if user.employment_type == 'Permanent' %}selected{% endif %}>Permanent</option>
+                        <option value="Contract" {% if user.employment_type == 'Contract' %}selected{% endif %}>Contract</option>
+                        <option value="Casual" {% if user.employment_type == 'Casual' %}selected{% endif %}>Casual</option>
+                        <option value="Intern" {% if user.employment_type == 'Intern' %}selected{% endif %}>Intern</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Basic Salary (Ksh)</label>
+                    <input type="number" step="0.01" name="basic_salary" class="form-control" value="{{ user.basic_salary or '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Hourly Rate (Ksh)</label>
+                    <input type="number" step="0.01" name="hourly_rate" class="form-control" value="{{ user.hourly_rate or '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Salary Grade</label>
+                    <input type="text" name="salary_grade" class="form-control" value="{{ user.salary_grade or '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="form-check mt-4">
+                        <input type="checkbox" name="is_active" class="form-check-input" id="isActive" {% if user.is_active %}checked{% endif %}>
+                        <label class="form-check-label" for="isActive">Active</label>
+                    </div>
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">New Password (leave blank to keep current)</label>
+                    <input type="password" name="new_password" class="form-control" placeholder="Enter new password to change">
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Profile Picture</label>
+                    <input type="file" name="profile_picture" class="form-control" accept="image/*">
+                    {% if user.profile_picture %}
+                    <div class="mt-2">
+                        <img src="{{ user.profile_picture }}" alt="Profile" style="max-width: 100px; max-height: 100px; border-radius: 50%;">
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Update User
+                </button>
+                <a href="{{ url_for('user_profile', user_id=user.id) }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

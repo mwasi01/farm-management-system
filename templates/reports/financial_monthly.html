@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Financial Report - {{ year }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-coins text-primary me-2"></i>Financial Report - {{ year }}</h1>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card stat-success">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ format_currency(monthly_data|sum(attribute='income')) }}</div>
+                    <div class="stat-label">Total Income</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-arrow-up"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card stat-danger">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ format_currency(monthly_data|sum(attribute='expenses')) }}</div>
+                    <div class="stat-label">Total Expenses</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-arrow-down"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card stat-primary">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ format_currency(monthly_data|sum(attribute='profit')) }}</div>
+                    <div class="stat-label">Net Profit/Loss</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Income (Ksh)</th>
+                        <th>Expenses (Ksh)</th>
+                        <th>Profit/Loss (Ksh)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in monthly_data %}
+                    <tr>
+                        <td>{{ data.month }}</td>
+                        <td>{{ format_currency(data.income) }}</td>
+                        <td>{{ format_currency(data.expenses) }}</td>
+                        <td class="{% if data.profit >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            <strong>{{ format_currency(data.profit) }}</strong>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Add Crop Planting{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-plus-circle text-primary me-2"></i>New Crop Planting</h1>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Crop</label>
+                    <select name="crop_id" class="form-select" required>
+                        <option value="">Select Crop</option>
+                        {% for crop in crops %}
+                        <option value="{{ crop.id }}">{{ crop.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Field</label>
+                    <select name="field_id" class="form-select" required>
+                        <option value="">Select Field</option>
+                        {% for field in fields %}
+                        <option value="{{ field.id }}">{{ field.field_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Planting Date</label>
+                    <input type="date" name="planting_date" class="form-control" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Planting Method</label>
+                    <select name="planting_method" class="form-select">
+                        <option value="Manual">Manual</option>
+                        <option value="Mechanical">Mechanical</option>
+                        <option value="Broadcast">Broadcast</option>
+                        <option value="Row">Row Planting</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Seed Rate (kg/ac)</label>
+                    <input type="number" step="0.01" name="seed_rate_used" class="form-control">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Area Planted (acres)</label>
+                    <input type="number" step="0.01" name="area_planted" class="form-control" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Seed Cost (Ksh)</label>
+                    <input type="number" step="0.01" name="seed_cost" class="form-control">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Expected Yield (kg)</label>
+                    <input type="number" step="0.01" name="expected_yield_kg" class="form-control">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Expected Harvest Date</label>
+                    <input type="date" name="expected_harvest_date" class="form-control">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Current Stage</label>
+                    <select name="current_stage" class="form-select">
+                        <option value="Germination">Germination</option>
+                        <option value="Vegetative">Vegetative</option>
+                        <option value="Flowering">Flowering</option>
+                        <option value="Fruiting">Fruiting</option>
+                        <option value="Maturity">Maturity</option>
+                    </select>
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Notes</label>
+                    <textarea name="notes" class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Save Planting
+                </button>
+                <a href="{{ url_for('crop_list') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

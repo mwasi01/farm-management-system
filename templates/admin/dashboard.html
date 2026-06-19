@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <h1><i class="fas fa-chart-line text-primary me-2"></i>Admin Dashboard</h1>
+    <span class="badge bg-primary">{{ now().strftime('%A, %B %d, %Y') }}</span>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card stat-primary">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ stats.total_users }}</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card stat-success">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ stats.active_users }}</div>
+                    <div class="stat-label">Active Users</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-user-check"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card stat-warning">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ stats.pending_payroll }}</div>
+                    <div class="stat-label">Pending Payroll</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-file-invoice"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card stat-danger">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ stats.pending_approvals }}</div>
+                    <div class="stat-label">Pending Approvals</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-clock"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Financial Summary -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card stat-purple">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ format_currency(stats.monthly_revenue) }}</div>
+                    <div class="stat-label">Monthly Revenue</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-arrow-up"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card stat-danger">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ format_currency(stats.monthly_expenses) }}</div>
+                    <div class="stat-label">Monthly Expenses</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-arrow-down"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card stat-success">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ format_currency(stats.monthly_revenue - stats.monthly_expenses) }}</div>
+                    <div class="stat-label">Net Profit/Loss</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Monthly Trends Chart -->
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-chart-line me-2"></i> Monthly Financial Trends</div>
+            <div class="card-body">
+                <canvas id="trendsChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-building me-2"></i> Department Performance</div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for dept in dept_performance %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ dept[0] or 'Unassigned' }}
+                            <span class="badge bg-primary rounded-pill">{{ dept[1] }}</span>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center mb-0">No data available</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var trendsData = {{ monthly_trends|tojson }};
+    if (document.getElementById('trendsChart')) {
+        new Chart(document.getElementById('trendsChart'), {
+            type: 'line',
+            data: {
+                labels: trendsData.map(function(item) { return item.month; }),
+                datasets: [
+                    {
+                        label: 'Income',
+                        data: trendsData.map(function(item) { return item.income; }),
+                        borderColor: '#2d6a4f',
+                        backgroundColor: 'rgba(45, 106, 79, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Expenses',
+                        data: trendsData.map(function(item) { return item.expense; }),
+                        borderColor: '#d00000',
+                        backgroundColor: 'rgba(208, 0, 0, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) { return 'Ksh ' + value.toLocaleString(); }
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

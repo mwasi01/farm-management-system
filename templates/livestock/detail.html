@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}{{ animal.tag_number }} - Livestock Details{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <h1><i class="fas fa-paw text-primary me-2"></i>{{ animal.tag_number }} - {{ animal.name or 'Unnamed' }}</h1>
+    <div>
+        <a href="{{ url_for('add_feeding_record', livestock_id=animal.id) }}" class="btn btn-sm btn-primary">
+            <i class="fas fa-plus me-1"></i>Add Feeding
+        </a>
+        <a href="{{ url_for('add_health_record', livestock_id=animal.id) }}" class="btn btn-sm btn-danger">
+            <i class="fas fa-plus me-1"></i>Add Health
+        </a>
+        <a href="{{ url_for('edit_livestock', livestock_id=animal.id) }}" class="btn btn-sm btn-secondary">
+            <i class="fas fa-edit"></i>
+        </a>
+        <a href="{{ url_for('livestock_list') }}" class="btn btn-sm btn-secondary">Back</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">Animal Information</div>
+            <div class="card-body">
+                <p><strong>Tag Number:</strong> {{ animal.tag_number }}</p>
+                <p><strong>Name:</strong> {{ animal.name or 'N/A' }}</p>
+                <p><strong>Category:</strong> {{ animal.category.name }}</p>
+                <p><strong>Breed:</strong> {{ animal.breed or 'N/A' }}</p>
+                <p><strong>Sex:</strong> {{ animal.sex or 'N/A' }}</p>
+                <p><strong>Health Status:</strong> 
+                    <span class="badge bg-{{ 'success' if animal.health_status == 'Healthy' else 'danger' }}">
+                        {{ animal.health_status }}
+                    </span>
+                </p>
+                <p><strong>Pregnancy Status:</strong> {{ animal.pregnancy_status }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">Measurements</div>
+            <div class="card-body">
+                <p><strong>Current Weight:</strong> {{ animal.current_weight or 'N/A' }} kg</p>
+                <p><strong>Weight Gain:</strong> {{ weight_gain or 0 }} kg/day</p>
+                <p><strong>Average Milk:</strong> {{ "%.1f"|format(avg_milk) }} L/day</p>
+                <p><strong>Estimated Value:</strong> {{ format_currency(animal.estimated_value) }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">Location</div>
+            <div class="card-body">
+                <p><strong>Location:</strong> {{ animal.location or 'N/A' }}</p>
+                <p><strong>Shed Number:</strong> {{ animal.shed_number or 'N/A' }}</p>
+                <p><strong>Acquisition Date:</strong> {{ format_date(animal.acquisition_date) }}</p>
+                <p><strong>Acquisition Type:</strong> {{ animal.acquisition_type or 'N/A' }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Health Records -->
+<div class="card mt-4">
+    <div class="card-header">Recent Health Records</div>
+    <div class="card-body">
+        {% if health_records %}
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Diagnosis</th>
+                        <th>Treatment</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in health_records %}
+                    <tr>
+                        <td>{{ format_date(record.performed_date) }}</td>
+                        <td>{{ record.record_type }}</td>
+                        <td>{{ record.diagnosis|truncate(50) }}</td>
+                        <td>{{ record.treatment|truncate(50) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted text-center">No health records</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Recent Milk Records -->
+<div class="card mt-4">
+    <div class="card-header">Recent Milk Records</div>
+    <div class="card-body">
+        {% if milk_records %}
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Quantity (L)</th>
+                        <th>Butter Fat (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in milk_records %}
+                    <tr>
+                        <td>{{ format_date(record.milking_date) }}</td>
+                        <td>{{ record.milking_time }}</td>
+                        <td>{{ record.quantity_litres }}</td>
+                        <td>{{ record.butter_fat_content or 'N/A' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted text-center">No milk records</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+<!-- Production Records -->
+<div class="card mt-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-chart-line me-2"></i>Production Records</span>
+        <div>
+            <a href="{{ url_for('add_production_record', livestock_id=animal.id) }}" class="btn btn-sm btn-primary">
+                <i class="fas fa-plus me-1"></i>Add Production
+            </a>
+            <a href="{{ url_for('production_chart', livestock_id=animal.id) }}" class="btn btn-sm btn-info">
+                <i class="fas fa-chart-bar me-1"></i>View Chart
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if production_records %}
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Value</th>
+                        <th>Image</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in production_records %}
+                    <tr>
+                        <td>{{ format_date(record.production_date) }}</td>
+                        <td>{{ record.product_type }}</td>
+                        <td>{{ record.quantity }} {{ record.unit }}</td>
+                        <td>{{ format_currency(record.value_ksh) }}</td>
+                        <td>
+                            {% if record.photo_url %}
+                            <img src="{{ record.photo_url }}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted text-center">No production records</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Payslip{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-file-invoice text-primary me-2"></i>Payslip</h1>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="text-center mb-4">
+            <h3>{{ payroll.employee.full_name }}</h3>
+            <p class="text-muted">Employee ID: {{ payroll.employee.employee_id }}</p>
+            <p class="text-muted">Period: {{ payroll.payroll_period }}</p>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <h5>Earnings</h5>
+                <table class="table table-sm">
+                    <tr><td>Basic Salary</td><td class="text-end">{{ format_currency(payroll.basic_salary) }}</td></tr>
+                    <tr><td>Overtime</td><td class="text-end">{{ format_currency(payroll.overtime_amount) }}</td></tr>
+                    <tr><td>Bonuses</td><td class="text-end">{{ format_currency(payroll.bonuses) }}</td></tr>
+                    <tr class="table-success"><td><strong>Gross Pay</strong></td><td class="text-end"><strong>{{ format_currency(payroll.gross_pay) }}</strong></td></tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <h5>Deductions</h5>
+                <table class="table table-sm">
+                    <tr><td>NSSF</td><td class="text-end">{{ format_currency(payroll.nssf_deduction) }}</td></tr>
+                    <tr><td>NHIF</td><td class="text-end">{{ format_currency(payroll.nhif_deduction) }}</td></tr>
+                    <tr><td>PAYE Tax</td><td class="text-end">{{ format_currency(payroll.paye_tax) }}</td></tr>
+                    <tr class="table-danger"><td><strong>Total Deductions</strong></td><td class="text-end"><strong>{{ format_currency(payroll.total_deductions) }}</strong></td></tr>
+                </table>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <h4 class="text-success">Net Pay: {{ format_currency(payroll.net_pay) }}</h4>
+        </div>
+    </div>
+</div>
+{% endblock %}

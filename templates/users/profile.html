@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.full_name }} - Profile{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-user-circle text-primary me-2"></i>{{ user.full_name }}</h1>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <img src="{{ user.get_profile_picture() }}" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                <h4>{{ user.full_name }}</h4>
+                <p class="text-muted">{{ user.role|title }}</p>
+                <span class="badge bg-{{ 'success' if user.is_active else 'danger' }}">
+                    {{ 'Active' if user.is_active else 'Inactive' }}
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">Employee Information</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Employee ID:</strong> {{ user.employee_id }}</p>
+                        <p><strong>Email:</strong> {{ user.email }}</p>
+                        <p><strong>Phone:</strong> {{ user.phone_number or 'N/A' }}</p>
+                        <p><strong>Department:</strong> {{ user.department or 'N/A' }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Employment Type:</strong> {{ user.employment_type or 'N/A' }}</p>
+                        <p><strong>Employment Date:</strong> {{ format_date(user.employment_date) }}</p>
+                        <p><strong>Tasks Completed:</strong> {{ tasks_completed }}</p>
+                        <p><strong>Attendance Rate:</strong> {{ attendance_rate }}%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">Financial Summary</div>
+            <div class="card-body">
+                <p><strong>Total Wages:</strong> {{ format_currency(total_wages) }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

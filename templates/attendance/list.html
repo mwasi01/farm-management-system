@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance Management{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <h1><i class="fas fa-clock text-primary me-2"></i>Attendance</h1>
+    <div>
+        <span class="badge bg-primary">{{ now().strftime('%A, %B %d, %Y') }}</span>
+    </div>
+</div>
+
+<!-- Quick Check-in/Check-out -->
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-fingerprint me-2"></i>Quick Check-in / Check-out
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <form method="POST" action="{{ url_for('check_in') }}">
+                    <input type="hidden" name="location" value="Farm">
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-sign-in-alt me-2"></i>Check In
+                    </button>
+                </form>
+            </div>
+            <div class="col-md-6">
+                <form method="POST" action="{{ url_for('check_out') }}">
+                    <button type="submit" class="btn btn-danger w-100">
+                        <i class="fas fa-sign-out-alt me-2"></i>Check Out
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Today's Attendance Summary -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card stat-success">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ attendances|selectattr('status', 'equalto', 'Present')|list|length }}</div>
+                    <div class="stat-label">Present Today</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-user-check"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card stat-danger">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ attendances|selectattr('status', 'equalto', 'Absent')|list|length }}</div>
+                    <div class="stat-label">Absent Today</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-user-times"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card stat-warning">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ attendances|selectattr('status', 'equalto', 'Late')|list|length }}</div>
+                    <div class="stat-label">Late Today</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-clock"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card stat-info">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ attendances|length }}</div>
+                    <div class="stat-label">Total Records</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-list"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Attendance List -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-history me-2"></i>Attendance Records</span>
+        <a href="{{ url_for('attendance_report') }}" class="btn btn-sm btn-primary">
+            <i class="fas fa-file-alt me-1"></i>View Report
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Date</th>
+                        <th>Time In</th>
+                        <th>Time Out</th>
+                        <th>Hours</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for attendance in attendances %}
+                    <tr>
+                        <td>{{ attendance.employee.full_name }}</td>
+                        <td>{{ format_date(attendance.attendance_date) }}</td>
+                        <td>{{ attendance.time_in.strftime('%H:%M') if attendance.time_in else '-' }}</td>
+                        <td>{{ attendance.time_out.strftime('%H:%M') if attendance.time_out else '-' }}</td>
+                        <td>{{ attendance.hours_worked or '-' }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if attendance.status == 'Present' else 'danger' if attendance.status == 'Absent' else 'warning' if attendance.status == 'Late' else 'info' }}">
+                                {{ attendance.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No attendance records found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Crops - Farm Management System{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <h1><i class="fas fa-seedling text-primary me-2"></i>Crop Management</h1>
+    <a href="{{ url_for('add_planting') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>New Planting
+    </a>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card stat-primary">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ total_plantings }}</div>
+                    <div class="stat-label">Active Plantings</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-seedling"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card stat-success">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ total_harvested }}</div>
+                    <div class="stat-label">Harvested</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card stat-info">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ "%.1f"|format(total_area) }} ac</div>
+                    <div class="stat-label">Total Area Planted</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-map-marked-alt"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Crop</th>
+                        <th>Field</th>
+                        <th>Planting Date</th>
+                        <th>Area (acres)</th>
+                        <th>Status</th>
+                        <th>Stage</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for planting in plantings %}
+                    <tr>
+                        <td>{{ planting.crop.name }}</td>
+                        <td>{{ planting.field.field_name }}</td>
+                        <td>{{ format_date(planting.planting_date) }}</td>
+                        <td>{{ planting.area_planted }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if planting.status == 'Active' else 'secondary' }}">
+                                {{ planting.status }}
+                            </span>
+                        </td>
+                        <td>{{ planting.current_stage or 'N/A' }}</td>
+                        <td>
+                            <a href="{{ url_for('planting_detail', planting_id=planting.id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">No crop plantings found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Add Crop Activity{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-plus-circle text-primary me-2"></i>Add Crop Activity</h1>
+    <p class="text-muted">Crop: {{ planting.crop.name }} - Field: {{ planting.field.field_name }}</p>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Activity Type</label>
+                    <select name="activity_type" class="form-select" required>
+                        <option value="">Select Type</option>
+                        {% for type in activity_types %}
+                        <option value="{{ type }}">{{ type }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Activity Name</label>
+                    <input type="text" name="activity_name" class="form-control" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Activity Date & Time</label>
+                    <input type="datetime-local" name="activity_date" class="form-control" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Duration (hours)</label>
+                    <input type="number" step="0.5" name="duration_hours" class="form-control">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Workers Involved</label>
+                    <input type="number" name="workers_involved" class="form-control">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Cost Incurred (Ksh)</label>
+                    <input type="number" step="0.01" name="cost_incurred" class="form-control">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Weather Conditions</label>
+                    <input type="text" name="weather_conditions" class="form-control" placeholder="Sunny, Rainy, etc.">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Tools Used</label>
+                    <input type="text" name="tools_used" class="form-control" placeholder="e.g., Hoe, Plough, Tractor">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Inputs Used</label>
+                    <input type="text" name="inputs_used" class="form-control" placeholder="e.g., Seeds, Fertilizer">
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Notes</label>
+                    <textarea name="notes" class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Save Activity
+                </button>
+                <a href="{{ url_for('planting_detail', planting_id=planting.id) }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

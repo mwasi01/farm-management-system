@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Planting Details{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <h1><i class="fas fa-seedling text-primary me-2"></i>{{ planting.crop.name }} - Planting Details</h1>
+    <div>
+        <a href="{{ url_for('add_crop_activity', planting_id=planting.id) }}" class="btn btn-sm btn-primary">
+            <i class="fas fa-plus me-1"></i>Add Activity
+        </a>
+        <a href="{{ url_for('add_harvest', planting_id=planting.id) }}" class="btn btn-sm btn-success">
+            <i class="fas fa-plus me-1"></i>Add Harvest
+        </a>
+        <a href="{{ url_for('crop_list') }}" class="btn btn-sm btn-secondary">Back</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">Planting Information</div>
+            <div class="card-body">
+                <p><strong>Crop:</strong> {{ planting.crop.name }}</p>
+                <p><strong>Field:</strong> {{ planting.field.field_name }}</p>
+                <p><strong>Planting Date:</strong> {{ format_date(planting.planting_date) }}</p>
+                <p><strong>Area:</strong> {{ planting.area_planted }} acres</p>
+                <p><strong>Status:</strong> <span class="badge bg-success">{{ planting.status }}</span></p>
+                <p><strong>Current Stage:</strong> {{ planting.current_stage or 'N/A' }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">Yield Information</div>
+            <div class="card-body">
+                <p><strong>Expected Yield:</strong> {{ planting.expected_yield_kg or 'N/A' }} kg</p>
+                <p><strong>Actual Yield:</strong> {{ planting.actual_yield_kg or 'N/A' }} kg</p>
+                <p><strong>Expected Harvest:</strong> {{ format_date(planting.expected_harvest_date) }}</p>
+                <p><strong>Actual Harvest:</strong> {{ format_date(planting.actual_harvest_date) }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">Cost Summary</div>
+            <div class="card-body">
+                <p><strong>Seed Cost:</strong> {{ format_currency(planting.seed_cost) }}</p>
+                <p><strong>Total Cost:</strong> {{ format_currency(total_cost) }}</p>
+                <p><strong>Harvest Value:</strong> {{ format_currency(total_harvest_value) }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">Activities</div>
+    <div class="card-body">
+        {% if activities %}
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Activity</th>
+                        <th>Duration</th>
+                        <th>Workers</th>
+                        <th>Cost</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for activity in activities %}
+                    <tr>
+                        <td>{{ format_date(activity.activity_date) }}</td>
+                        <td>{{ activity.activity_name }}</td>
+                        <td>{{ activity.duration_hours }} hrs</td>
+                        <td>{{ activity.workers_involved }}</td>
+                        <td>{{ format_currency(activity.cost_incurred) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted text-center">No activities recorded</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">Harvests</div>
+    <div class="card-body">
+        {% if harvests %}
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Quantity (kg)</th>
+                        <th>Grade</th>
+                        <th>Labor Cost</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for harvest in harvests %}
+                    <tr>
+                        <td>{{ format_date(harvest.harvest_date) }}</td>
+                        <td>{{ harvest.quantity_kg }}</td>
+                        <td>{{ harvest.quality_grade or 'N/A' }}</td>
+                        <td>{{ format_currency(harvest.labor_cost) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted text-center">No harvests recorded</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

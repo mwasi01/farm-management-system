@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Worker Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-user-circle text-primary me-2"></i>My Dashboard</h1>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card stat-info">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ my_tasks|length }}</div>
+                    <div class="stat-label">My Tasks</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-tasks"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card stat-success">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ format_currency(monthly_wages) }}</div>
+                    <div class="stat-label">Monthly Wages</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-money-bill-wave"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card stat-warning">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ leave_balance }}</div>
+                    <div class="stat-label">Leave Balance (Days)</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-tasks me-2"></i> My Tasks</span>
+                <a href="{{ url_for('task_list') }}" class="btn btn-sm btn-primary">View All</a>
+            </div>
+            <div class="card-body">
+                {% if my_tasks %}
+                    {% for task in my_tasks %}
+                        <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                            <div>
+                                <span class="badge bg-{{ 'danger' if task.priority == 'High' else 'warning' if task.priority == 'Medium' else 'info' }}">
+                                    {{ task.priority }}
+                                </span>
+                                {{ task.task_title }}
+                            </div>
+                            <span class="badge bg-{{ 'warning' if task.status == 'Pending' else 'info' if task.status == 'In Progress' else 'success' }}">
+                                {{ task.status }}
+                            </span>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center mb-0">No tasks assigned</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-clock me-2"></i> Today's Attendance
+            </div>
+            <div class="card-body">
+                {% if today_attendance %}
+                    <div class="text-center">
+                        <div class="display-4">
+                            <i class="fas fa-check-circle text-success"></i>
+                        </div>
+                        <h5>Checked In</h5>
+                        <p class="text-muted">Time: {{ today_attendance.time_in.strftime('%H:%M') if today_attendance.time_in else 'N/A' }}</p>
+                        {% if today_attendance.time_out %}
+                            <p class="text-muted">Checked Out: {{ today_attendance.time_out.strftime('%H:%M') }}</p>
+                            <p class="text-muted">Hours Worked: {{ today_attendance.hours_worked }}</p>
+                        {% else %}
+                            <form method="POST" action="{{ url_for('check_out') }}" class="mt-3">
+                                <button type="submit" class="btn btn-danger">Check Out</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div class="text-center">
+                        <div class="display-4">
+                            <i class="fas fa-clock text-muted"></i>
+                        </div>
+                        <h5>Not Checked In Today</h5>
+                        <form method="POST" action="{{ url_for('check_in') }}" class="mt-3">
+                            <div class="mb-3">
+                                <input type="text" name="location" class="form-control" placeholder="Location" value="Farm">
+                            </div>
+                            <button type="submit" class="btn btn-success">Check In</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

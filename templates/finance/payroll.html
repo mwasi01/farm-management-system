@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}Payroll Management{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <h1><i class="fas fa-file-invoice-dollar text-primary me-2"></i>Payroll Management</h1>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#generatePayrollModal">
+        <i class="fas fa-plus me-2"></i>Generate Payroll
+    </button>
+</div>
+
+<!-- Generate Payroll Modal -->
+<div class="modal fade" id="generatePayrollModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Generate Payroll</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('generate_payroll') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Period</label>
+                        <input type="month" name="period" class="form-control" value="{{ now().strftime('%Y-%m') }}" required>
+                    </div>
+                    <div class="form-text">This will generate payroll for all active employees.</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-cog me-2"></i>Generate
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-money-bill-wave text-success me-2"></i>Mark as Paid</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('mark_payroll_paid', payroll_id=0) }}" id="paymentForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Payment Method</label>
+                        <select name="payment_method" class="form-select" required>
+                            <option value="Cash">Cash</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                            <option value="M-Pesa">M-Pesa</option>
+                            <option value="Cheque">Cheque</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Payment Reference</label>
+                        <input type="text" name="payment_reference" class="form-control" placeholder="Transaction ID, Cheque Number, etc.">
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        The employee will be notified of this payment.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check me-2"></i>Confirm Payment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card stat-info">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ payrolls|length }}</div>
+                    <div class="stat-label">Total Payrolls</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-file-invoice"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card stat-warning">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ payrolls|selectattr('payment_status', 'equalto', 'Pending')|list|length }}</div>
+                    <div class="stat-label">Pending Payment</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-clock"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card stat-success">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ payrolls|selectattr('payment_status', 'equalto', 'Paid')|list|length }}</div>
+                    <div class="stat-label">Paid</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card stat-primary">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ payrolls|sum(attribute='net_pay')|float|round(2) }}</div>
+                    <div class="stat-label">Total Payroll (Ksh)</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-coins"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payroll List -->
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Period</th>
+                        <th>Gross Pay</th>
+                        <th>Deductions</th>
+                        <th>Net Pay</th>
+                        <th>Payment Status</th>
+                        <th>Payment Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payroll in payrolls %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('employee_payroll_history', user_id=payroll.user_id) }}">
+                                {{ payroll.employee.full_name }}
+                            </a>
+                        </td>
+                        <td>{{ payroll.payroll_period }}</td>
+                        <td>{{ format_currency(payroll.gross_pay) }}</td>
+                        <td>{{ format_currency(payroll.total_deductions) }}</td>
+                        <td><strong>{{ format_currency(payroll.net_pay) }}</strong></td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if payroll.payment_status == 'Paid' else 'warning' if payroll.payment_status == 'Pending' else 'info' }}">
+                                {{ payroll.payment_status }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if payroll.payment_date %}
+                                {{ format_date(payroll.payment_date) }}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('generate_payslip', payroll_id=payroll.id) }}" class="btn btn-primary" title="Payslip">
+                                    <i class="fas fa-file-pdf"></i>
+                                </a>
+                                {% if payroll.payment_status != 'Paid' %}
+                                <button type="button" class="btn btn-success" title="Mark as Paid" 
+                                        onclick="openPaymentModal({{ payroll.id }})">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted">No payroll records found. Generate payroll to get started.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function openPaymentModal(payrollId) {
+    const form = document.getElementById('paymentForm');
+    form.action = form.action.replace(/\/\d+$/, '/' + payrollId);
+    new bootstrap.Modal(document.getElementById('paymentModal')).show();
+}
+</script>
+{% endblock %}
