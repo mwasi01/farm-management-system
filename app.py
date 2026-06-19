@@ -218,8 +218,8 @@ class User(UserMixin, db.Model):
     
     attendances = db.relationship('Attendance', backref='employee', lazy='dynamic', foreign_keys='Attendance.user_id')
     tasks_assigned = db.relationship('Task', foreign_keys='Task.assigned_to', lazy='dynamic', back_populates='assignee')
-    tasks_reported = db.relationship('Task', backref='reporter', lazy='dynamic', foreign_keys='Task.reported_by')
-    tasks_completed = db.relationship('Task', backref='completer', lazy='dynamic', foreign_keys='Task.completed_by')
+    tasks_reported = db.relationship('Task', foreign_keys='Task.reported_by', lazy='dynamic', back_populates='reporter')
+    tasks_completed = db.relationship('Task', foreign_keys='Task.completed_by', lazy='dynamic', back_populates='completer')
     wages = db.relationship('Wage', backref='employee', lazy='dynamic', foreign_keys='Wage.user_id')
     advances = db.relationship('SalaryAdvance', backref='employee', lazy='dynamic', foreign_keys='SalaryAdvance.user_id')
     leaves = db.relationship('Leave', backref='employee', lazy='dynamic', foreign_keys='Leave.user_id')
@@ -1025,8 +1025,8 @@ class Task(db.Model):
     planting = db.relationship('CropPlanting')
     field = db.relationship('FarmField')
     assignee = db.relationship('User', foreign_keys=[assigned_to], back_populates='tasks_assigned')
-    reporter = db.relationship('User', foreign_keys=[reported_by])
-    completer = db.relationship('User', foreign_keys=[completed_by])
+    reporter = db.relationship('User', foreign_keys=[reported_by], back_populates='tasks_reported')
+    completer = db.relationship('User', foreign_keys=[completed_by], back_populates='tasks_completed')
 
 class TaskComment(db.Model):
     __tablename__ = 'task_comments'
