@@ -2675,12 +2675,12 @@ def generate_payroll():
         existing = Payroll.query.filter_by(user_id=emp.id, payroll_period=period).first()
         if existing:
             continue
-        gross = emp.basic_salary or 0
-        nssf = calculate_nssf(gross, 'I')
-        nhif = calculate_nhif(gross)
-        paye = calculate_kra_paye(gross)
+        gross = float(emp.basic_salary or 0)
+        nssf = float(calculate_nssf(gross, "I"))
+        nhif = float(calculate_nhif(gross))
+        paye = float(calculate_kra_paye(gross))
         total_ded = nssf + nhif + paye
-        net = gross - total_ded
+        net = float(gross - total_ded)
         payroll = Payroll(
             payroll_period=period,
             user_id=emp.id,

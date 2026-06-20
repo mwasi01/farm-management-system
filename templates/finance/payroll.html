@@ -45,7 +45,7 @@
                 <h5 class="modal-title"><i class="fas fa-money-bill-wave text-success me-2"></i>Mark as Paid</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form method="POST" action="{{ url_for('mark_payroll_paid', payroll_id=0) }}" id="paymentForm">
+            <form method="POST" action="/finance/payroll/0/mark-paid" id="paymentForm">
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Payment Method</label>
@@ -193,7 +193,7 @@
 <script>
 function openPaymentModal(payrollId) {
     const form = document.getElementById('paymentForm');
-    form.action = form.action.replace(/\/\d+$/, '/' + payrollId);
+    form.action = "/finance/payroll/" + payrollId + "/mark-paid";
     new bootstrap.Modal(document.getElementById('paymentModal')).show();
 }
 </script>
